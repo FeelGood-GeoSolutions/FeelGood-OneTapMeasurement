@@ -134,15 +134,12 @@ Item {
             if (!oneTapButton.enabled) {
                 return;
             }
-            log(feelgoodOnetapSettings.autoImage);
             disable();
 
             if (feelgoodOnetapSettings.autoImage) {
-                //camera.active = true;
-                log("2");
+                camera.active = true;
                 return;
             }
-            log("31");
             plugin.oneTap();
             return;
         }

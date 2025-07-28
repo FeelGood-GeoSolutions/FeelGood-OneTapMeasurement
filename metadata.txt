@@ -3,5 +3,5 @@ name=OneTap
 description=Create a new point at your current location with all NMEA and an image
 author=FeelGood GeoSolutions
 icon=icons/camera_icon.svg
-version=0.0.1
+version=1.0.0
 homepage=
