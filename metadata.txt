@@ -1,7 +1,7 @@
 [general]
-name=OneTap
-description=Create a new point at your current location with all NMEA and an image
+name=FeelGood OneTapMeasurement
+description=Create a point with default values and (optionally) take a picture — all in one tap!
 author=FeelGood GeoSolutions
 icon=icons/camera_icon.svg
 version=1.0.0
-homepage=
+homepage=https://www.feelgoodgeosolutions.de
