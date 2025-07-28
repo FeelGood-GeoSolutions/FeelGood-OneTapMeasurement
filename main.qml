@@ -38,7 +38,6 @@ Item {
     Component.onCompleted: {
         iface.addItemToPluginsToolbar(oneTapButton);
         settingsDialog.parent = mainWindow.contentItem;
-        loadSettings();
         return;
     }
 
@@ -46,28 +45,24 @@ Item {
         settingsDialog.open();
     }
 
-    Item {
-        id: cameraItem
+    Loader {
+        id: cameraLoader
+        active: false
 
+        // Keep the camera as a persistent object
+        property var camera: null
         property alias photoPath: imageCapture.lastSavedPath
 
-        Camera {
-            id: camera
-            active: false
-
-            onActiveChanged: {
-                if (active) {
-                    plugin.oneTap();
-                } else {
-                    oneTapButton.enable();
-                }
-            }
+        Component.onCompleted: {
+            camera = Qt.createQmlObject('import QtMultimedia; Camera {}', cameraLoader)
+            photoCaptured.connect(plugin.createFromPendingFeatureData);
         }
 
-        CaptureSession {
-            id: captureSession
-            camera: camera
-            imageCapture: imageCapture
+        Component.onDestruction: {
+            if (camera) {
+                camera.stop()
+                camera = null
+            }
         }
 
         ImageCapture {
@@ -76,19 +71,15 @@ Item {
 
             onImageSaved: (requestId, filePath) => {
                 lastSavedPath = filePath;
-                cameraItem.photoCaptured(filePath);
+                cameraLoader.photoCaptured(filePath);
             }
 
             onErrorOccurred: (requestId, error, errorString) => {}
 
             onReadyForCaptureChanged: ready => {}
         }
-
+        
         signal photoCaptured(string filePath)
-
-        Component.onCompleted: {
-            photoCaptured.connect(plugin.createFromPendingFeatureData);
-        }
 
         function attemptCapture(path) {
             try {
@@ -107,6 +98,7 @@ Item {
             } catch (error) {
                 plugin.log("Error capturing photo:" + error);
                 oneTapButton.enable();
+                camera.active = false;
             }
             oneTapButton.enable();
             camera.active = false;
@@ -167,20 +159,68 @@ Item {
         visible: false
         modal: true
         width: 400
-        height: 300
+        //height: 300
         title: qsTr("Feelgood OneTap Settings")
         standardButtons: Dialog.Ok | Dialog.Cancel
 
         x: (plugin.mainWindow.width - width) / 2
         y: (plugin.mainWindow.height - height) / 2
 
-        Column {
+        ColumnLayout {
             anchors.fill: parent
-            spacing: 10
+            anchors.margins: 10
+            spacing: 15
 
             Text {
                 text: qsTr("Configure your Feelgood OneTap settings here.")
                 wrapMode: Text.Wrap
+                Layout.fillWidth: true
+            }
+
+            Switch {
+                id: autoImageSwitch
+                text: qsTr("Automatically capture image")
+                checked: feelgoodOnetapSettings.autoImage
+                onCheckedChanged: feelgoodOnetapSettings.autoImage = checked
+                Layout.fillWidth: true
+            }
+
+            Switch {
+                id: imuConfirmationSwitch
+                text: qsTr("Require IMU confirmation")
+                checked: feelgoodOnetapSettings.requireConfirmationOnImuMissing
+                onCheckedChanged: feelgoodOnetapSettings.requireConfirmationOnImuMissing = checked
+                Layout.fillWidth: true
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 10
+
+                Label {
+                    text: qsTr("Picture field name:")
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                TextField {
+                    id: pictureFieldInput
+                    text: feelgoodOnetapSettings.pictureFieldName
+                    onTextChanged: feelgoodOnetapSettings.pictureFieldName = text
+                    Layout.fillWidth: true
+                    placeholderText: qsTr("Enter field name")
+                }
+            }
+
+            Switch {
+                id: audioFeedbackSwitch
+                text: qsTr("Enable audio feedback")
+                checked: feelgoodOnetapSettings.enableAudioFeedback
+                onCheckedChanged: feelgoodOnetapSettings.enableAudioFeedback = checked
+                Layout.fillWidth: true
+            }
+
+            Item {
+                Layout.fillHeight: true
             }
         }
 
@@ -256,9 +296,9 @@ Item {
             geometry: geometry,
             relativePath: relativePath
         };
-        plugin.log(feelgoodOnetapSettings.autoImage);
+        
         if (feelgoodOnetapSettings.autoImage) {
-            cameraItem.attemptCapture(fullPath);
+            cameraLoader.attemptCapture(fullPath);
             return;
         }
         plugin.createFromPendingFeatureData();
@@ -308,5 +348,12 @@ Item {
                 successSound.playSuccess();
             }
         }
+    }
+
+    Component.onDestruction: {
+        if (cameraLoader.camera) {
+            cameraLoader.camera.stop()
+        }
+        // Any other cleanup needed
     }
 }
