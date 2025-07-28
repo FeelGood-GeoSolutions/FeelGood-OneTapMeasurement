@@ -1,0 +1,29 @@
+import QmlProject 1.0
+
+Project {
+    mainFile: "main.qml"
+    
+    // Add Qt module imports
+    importPaths: [
+        ".",
+        "imports"
+    ]
+    
+    // Specify Qt modules you're using
+    qtForMCUs: false
+    
+    Environment {
+        QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT: "1"
+        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
+        QT_LOGGING_RULES: "*=false"
+        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
+    }
+    
+    QmlFiles {
+        directory: "."
+    }
+    
+    JavaScriptFiles {
+        directory: "."
+    }
+}

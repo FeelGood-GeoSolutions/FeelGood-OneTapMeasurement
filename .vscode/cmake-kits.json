@@ -1,0 +1,91 @@
+[
+  {
+    "name": "Qt-6.9.1-android_arm64_v8a",
+    "isTrusted": true,
+    "preferredGenerator": {
+      "name": "Ninja"
+    },
+    "cmakeSettings": {
+      "QT_QML_GENERATE_QMLLS_INI": "ON",
+      "CMAKE_CXX_FLAGS_DEBUG_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG",
+      "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG"
+    },
+    "environmentVariables": {
+      "VSCODE_QT_INSTALLATION": "C:\\Qt\\6.9.1\\android_arm64_v8a",
+      "PATH": "C:\\Qt\\6.9.1\\android_arm64_v8a\\bin;${env:PATH}"
+    },
+    "toolchainFile": "C:\\Qt\\6.9.1\\android_arm64_v8a\\lib\\cmake\\Qt6\\qt.toolchain.cmake"
+  },
+  {
+    "name": "Qt-6.9.1-android_armv7",
+    "isTrusted": true,
+    "preferredGenerator": {
+      "name": "Ninja"
+    },
+    "cmakeSettings": {
+      "QT_QML_GENERATE_QMLLS_INI": "ON",
+      "CMAKE_CXX_FLAGS_DEBUG_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG",
+      "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG"
+    },
+    "environmentVariables": {
+      "VSCODE_QT_INSTALLATION": "C:\\Qt\\6.9.1\\android_armv7",
+      "PATH": "C:\\Qt\\6.9.1\\android_armv7\\bin;${env:PATH}"
+    },
+    "toolchainFile": "C:\\Qt\\6.9.1\\android_armv7\\lib\\cmake\\Qt6\\qt.toolchain.cmake"
+  },
+  {
+    "name": "Qt-6.9.1-android_x86",
+    "isTrusted": true,
+    "preferredGenerator": {
+      "name": "Ninja"
+    },
+    "cmakeSettings": {
+      "QT_QML_GENERATE_QMLLS_INI": "ON",
+      "CMAKE_CXX_FLAGS_DEBUG_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG",
+      "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG"
+    },
+    "environmentVariables": {
+      "VSCODE_QT_INSTALLATION": "C:\\Qt\\6.9.1\\android_x86",
+      "PATH": "C:\\Qt\\6.9.1\\android_x86\\bin;${env:PATH}"
+    },
+    "toolchainFile": "C:\\Qt\\6.9.1\\android_x86\\lib\\cmake\\Qt6\\qt.toolchain.cmake"
+  },
+  {
+    "name": "Qt-6.9.1-android_x86_64",
+    "isTrusted": true,
+    "preferredGenerator": {
+      "name": "Ninja"
+    },
+    "cmakeSettings": {
+      "QT_QML_GENERATE_QMLLS_INI": "ON",
+      "CMAKE_CXX_FLAGS_DEBUG_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG",
+      "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG"
+    },
+    "environmentVariables": {
+      "VSCODE_QT_INSTALLATION": "C:\\Qt\\6.9.1\\android_x86_64",
+      "PATH": "C:\\Qt\\6.9.1\\android_x86_64\\bin;${env:PATH}"
+    },
+    "toolchainFile": "C:\\Qt\\6.9.1\\android_x86_64\\lib\\cmake\\Qt6\\qt.toolchain.cmake"
+  },
+  {
+    "name": "Qt-6.9.1-mingw_64",
+    "isTrusted": true,
+    "preferredGenerator": {
+      "name": "Ninja"
+    },
+    "cmakeSettings": {
+      "QT_QML_GENERATE_QMLLS_INI": "ON",
+      "CMAKE_CXX_FLAGS_DEBUG_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG",
+      "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG"
+    },
+    "environmentVariables": {
+      "VSCODE_QT_INSTALLATION": "C:\\Qt\\6.9.1\\mingw_64",
+      "PATH": "C:\\Qt\\6.9.1\\mingw_64\\bin;${env:PATH};C:\\Qt\\Tools\\mingw1310_64\\bin"
+    },
+    "toolchainFile": "C:\\Qt\\6.9.1\\mingw_64\\lib\\cmake\\Qt6\\qt.toolchain.cmake",
+    "compilers": {
+      "C": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe",
+      "CXX": "C:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe"
+    }
+  }
+]
