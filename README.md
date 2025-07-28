@@ -4,7 +4,7 @@ Create a point with default values and (optionally) take a picture — all in on
 
 ## Installation
 
-1. Copy the [link to the zipped repository](/archive/refs/heads/main.zip)
+1. Copy the [link to the zipped repository](https://github.com/FeelGood-GeoSolutions/FeelGood-OneTapMeasurement/archive/refs/heads/main.zip)
 2. In QField, go to **Settings → Manage Plugins → Install plugin from URL**
 3. Paste the copied link and confirm
 4. Grant plugin permissions if prompted
@@ -25,7 +25,7 @@ We offer professional plugin development tailored to your workflow. [Contact us]
 
 ## Bug Reports & Suggestions
 
-If you encounter any bugs 🪲 or have suggestions for improvements, please open an issue on our [GitHub Issues page](/issues) or contact us directly.
+If you encounter any bugs 🪲 or have suggestions for improvements, please open an issue on our [GitHub Issues page](https://github.com/FeelGood-GeoSolutions/FeelGood-OneTapMeasurement/issues) or contact us directly.
 
 ## About Us
 
