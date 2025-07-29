@@ -11,6 +11,7 @@ import org.qgis
 import Theme
 
 import "qrc:/qml" as QFieldItems
+import "components" as Components
 
 Item {
     id: plugin
@@ -23,8 +24,9 @@ Item {
 
     property string mainIconSource: "icons/camera_icon.svg"
     property string pendingIconSource: "icons/pending_icon.svg"
-    
+
     property var pendingFeatureData: null
+    property bool isCapturing: false
 
     Settings {
         id: feelgoodOnetapSettings
@@ -41,67 +43,31 @@ Item {
         return;
     }
 
+    Component.onDestruction: {
+        if (cameraComponent.active) {
+            cameraComponent.active = false;
+        }
+    }
+
     function configure() {
         settingsDialog.open();
     }
 
-    Loader {
-        id: cameraLoader
-        active: false
+    Components.Logger {
+        id: logger
+    }
 
-        // Keep the camera as a persistent object
-        property var camera: null
-        property alias photoPath: imageCapture.lastSavedPath
-
-        Component.onCompleted: {
-            camera = Qt.createQmlObject('import QtMultimedia; Camera {}', cameraLoader)
-            photoCaptured.connect(plugin.createFromPendingFeatureData);
-        }
-
-        Component.onDestruction: {
-            if (camera) {
-                camera.stop()
-                camera = null
-            }
-        }
-
-        ImageCapture {
-            id: imageCapture
-            property string lastSavedPath: ""
-
-            onImageSaved: (requestId, filePath) => {
-                lastSavedPath = filePath;
-                cameraLoader.photoCaptured(filePath);
-            }
-
-            onErrorOccurred: (requestId, error, errorString) => {}
-
-            onReadyForCaptureChanged: ready => {}
+    Components.Camera {
+        id: cameraComponent
+        
+        onPhotoCaptured: (filePath) => {
+            plugin.createFromPendingFeatureData();
         }
         
-        signal photoCaptured(string filePath)
-
-        function attemptCapture(path) {
-            try {
-                if (imageCapture.readyForCapture) {
-                    imageCapture.captureToFile(path);
-                } else {
-                    Qt.callLater(function () {
-                        if (imageCapture.readyForCapture) {
-                            imageCapture.captureToFile(path);
-                            return;
-                        } else {
-                            plugin.log("ImageCapture not ready, please try again.");
-                        }
-                    });
-                }
-            } catch (error) {
-                plugin.log("Error capturing photo:" + error);
-                oneTapButton.enable();
-                camera.active = false;
-            }
+        onCameraError: (errorMessage) => {
+            logger.log("Camera error: " + errorMessage);
             oneTapButton.enable();
-            camera.active = false;
+            plugin.isCapturing = false;
         }
     }
 
@@ -110,7 +76,9 @@ Item {
         source: "sounds/success.wav"
 
         function playSuccess() {
-            play();
+            if (feelgoodOnetapSettings.enableAudioFeedback) {
+                play();
+            }
         }
     }
 
@@ -123,13 +91,13 @@ Item {
         enabled: true
 
         onClicked: {
-            if (!oneTapButton.enabled) {
+            if (!oneTapButton.enabled || plugin.isCapturing) {
                 return;
             }
             disable();
 
             if (feelgoodOnetapSettings.autoImage) {
-                camera.active = true;
+                plugin.startCameraCapture();
                 return;
             }
             plugin.oneTap();
@@ -137,7 +105,7 @@ Item {
         }
 
         onPressAndHold: {
-            if (oneTapButton.enabled) {
+            if (oneTapButton.enabled && !plugin.isCapturing) {
                 settingsDialog.open();
             }
             return;
@@ -154,85 +122,37 @@ Item {
         }
     }
 
-    Dialog {
+    Components.Settings {
         id: settingsDialog
-        visible: false
-        modal: true
-        width: 400
-        //height: 300
-        title: qsTr("Feelgood OneTap Settings")
-        standardButtons: Dialog.Ok | Dialog.Cancel
+        
+        settings: feelgoodOnetapSettings
+        parentWindow: plugin.mainWindow
+    }
 
-        x: (plugin.mainWindow.width - width) / 2
-        y: (plugin.mainWindow.height - height) / 2
-
-        ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: 10
-            spacing: 15
-
-            Text {
-                text: qsTr("Configure your Feelgood OneTap settings here.")
-                wrapMode: Text.Wrap
-                Layout.fillWidth: true
-            }
-
-            Switch {
-                id: autoImageSwitch
-                text: qsTr("Automatically capture image")
-                checked: feelgoodOnetapSettings.autoImage
-                onCheckedChanged: feelgoodOnetapSettings.autoImage = checked
-                Layout.fillWidth: true
-            }
-
-            Switch {
-                id: imuConfirmationSwitch
-                text: qsTr("Require IMU confirmation")
-                checked: feelgoodOnetapSettings.requireConfirmationOnImuMissing
-                onCheckedChanged: feelgoodOnetapSettings.requireConfirmationOnImuMissing = checked
-                Layout.fillWidth: true
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 10
-
-                Label {
-                    text: qsTr("Picture field name:")
-                    Layout.alignment: Qt.AlignVCenter
-                }
-
-                TextField {
-                    id: pictureFieldInput
-                    text: feelgoodOnetapSettings.pictureFieldName
-                    onTextChanged: feelgoodOnetapSettings.pictureFieldName = text
-                    Layout.fillWidth: true
-                    placeholderText: qsTr("Enter field name")
-                }
-            }
-
-            Switch {
-                id: audioFeedbackSwitch
-                text: qsTr("Enable audio feedback")
-                checked: feelgoodOnetapSettings.enableAudioFeedback
-                onCheckedChanged: feelgoodOnetapSettings.enableAudioFeedback = checked
-                Layout.fillWidth: true
-            }
-
-            Item {
-                Layout.fillHeight: true
-            }
-        }
-
-        onAccepted: {
-            plugin.saveSettings();
+    function startCameraCapture() {
+        if (plugin.isCapturing) {
+            logger.log("Camera capture already in progress");
             return;
         }
+
+        // First call oneTap to set up the pending feature data
+        plugin.oneTap();
+        
+        if (!plugin.pendingFeatureData) {
+            logger.log("Failed to create pending feature data");
+            oneTapButton.enable();
+            return;
+        }
+
+        let fullPath = qgisProject.homePath + "/" + plugin.pendingFeatureData.relativePath;
+        cameraComponent.startCapture(fullPath);
+        plugin.isCapturing = true;
     }
 
     function oneTap() {
         dashBoard.ensureEditableLayerSelected();
         let layer = dashBoard.activeLayer;
+        
         if (!positionSource.active || !positionSource.positionInformation.latitudeValid || !positionSource.positionInformation.longitudeValid) {
             mainWindow.displayToast(qsTr('Cannot generate point. Positioning is not active or does not return a valid position.'));
             oneTapButton.enable();
@@ -244,10 +164,12 @@ Item {
             oneTapButton.enable();
             return;
         }
+        
         let fieldNames = layer.fields.names;
 
         if (fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName) == -1 && feelgoodOnetapSettings.autoImage) {
             mainWindow.displayToast(qsTr('Cannot generate point. Active vector layer is missing a field named ${feelgoodOnetapSettings.pictureFieldName}. Please create it in the layer settings or adjust your plugin settings.'));
+            oneTapButton.enable();
             return;
         }
 
@@ -257,6 +179,7 @@ Item {
             oneTapButton.enable();
             return;
         }
+        
         let longitude = pos.x;
         let latitude = pos.y;
 
@@ -289,32 +212,18 @@ Item {
         }
 
         let relativePath = "DCIM/onetap_" + Date.now() + ".jpg";
-        let fullPath = qgisProject.homePath + "/" + relativePath;
 
         plugin.pendingFeatureData = {
             layer: layer,
             geometry: geometry,
             relativePath: relativePath
         };
-        
-        if (feelgoodOnetapSettings.autoImage) {
-            cameraLoader.attemptCapture(fullPath);
+
+        if (!feelgoodOnetapSettings.autoImage) {
+            plugin.createFromPendingFeatureData();
             return;
         }
-        plugin.createFromPendingFeatureData();
-        return;
-    }
 
-    function saveSettings() {
-        return;
-    }
-
-    function loadSettings() {
-        return;
-    }
-
-    function log(obj) {
-        iface.logMessage(obj);
         return;
     }
 
@@ -327,7 +236,7 @@ Item {
                 let fieldIndex = fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName);
                 feature.setAttribute(fieldIndex, plugin.pendingFeatureData.relativePath);
             } else if (feelgoodOnetapSettings.autoImage) {
-                plugin.log("Picture field not found in feature fields");
+                logger.log("Picture field not found in feature fields");
             }
 
             overlayFeatureFormDrawer.featureModel.feature = feature;
@@ -338,22 +247,12 @@ Item {
 
             plugin.pendingFeatureData = null;
 
-            if (camera.active) {
-                camera.active = false;
-            } else {
-                oneTapButton.enable();
-            }
+            // Clean up camera after successful capture
+            cameraComponent.cleanup();
+            plugin.isCapturing = false;
+            oneTapButton.enable();
 
-            if (feelgoodOnetapSettings.enableAudioFeedback) {
-                successSound.playSuccess();
-            }
+            successSound.playSuccess();
         }
-    }
-
-    Component.onDestruction: {
-        if (cameraLoader.camera) {
-            cameraLoader.camera.stop()
-        }
-        // Any other cleanup needed
     }
 }

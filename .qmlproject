@@ -6,7 +6,8 @@ Project {
     // Add Qt module imports
     importPaths: [
         ".",
-        "imports"
+        "imports",
+        "components",
     ]
     
     // Specify Qt modules you're using

@@ -19,7 +19,7 @@ Create a point with default values and (optionally) take a picture — all in on
 
 ## Custom Plugin Development
 
-Need a custom QField or QGIS plugin?  
+Need a custom QField plugin?  
 We offer professional plugin development tailored to your workflow. [Contact us](https://www.feelgoodgeosolutions.de/kontakt) to discuss your requirements!
 
 
@@ -39,4 +39,5 @@ If you find this plugin helpful, consider supporting us by:
 
 - Starring this repository ⭐
 - Sharing feedback
+- [engaging our services or hiring us for your next project](https://www.feelgoodgeosolutions.de/services)
 - Spreading the word!
