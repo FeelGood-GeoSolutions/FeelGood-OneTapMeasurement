@@ -4,180 +4,74 @@ import QtQuick.Layouts
 
 Dialog {
     id: settingsDialog
-    
     property var settings: null
-    property var parentWindow: null
-    
-    signal settingsAccepted()
-    
+    property var mainWindow: null
+
     visible: false
     modal: true
-    width: 450
-    height: 400
+    width: 400
+    //height: 300
     title: qsTr("Feelgood OneTap Settings")
     standardButtons: Dialog.Ok | Dialog.Cancel
-    
-    x: parentWindow ? (parentWindow.width - width) / 2 : 0
-    y: parentWindow ? (parentWindow.height - height) / 2 : 0
 
-    ScrollView {
+    x: (mainWindow.width - width) / 2
+    y: (mainWindow.height - height) / 2
+
+    ColumnLayout {
         anchors.fill: parent
-        
-        Column {
-            width: parent.width
-            spacing: 20
-            padding: 20
+        anchors.margins: 10
+        spacing: 15
 
-            Text {
-                text: qsTr("Configure your Feelgood OneTap settings")
-                font.pointSize: 14
-                font.bold: true
-                wrapMode: Text.Wrap
-                width: parent.width
+        Text {
+            text: qsTr("Configure your Feelgood OneTap settings here.")
+            wrapMode: Text.Wrap
+            Layout.fillWidth: true
+        }
+
+        Switch {
+            id: autoImageSwitch
+            text: qsTr("Automatically capture image")
+            checked: settingsDialog.settings.autoImage
+            onCheckedChanged: settingsDialog.settings.autoImage = checked
+            Layout.fillWidth: true
+        }
+
+        Switch {
+            id: imuConfirmationSwitch
+            text: qsTr("Require IMU confirmation")
+            checked: settingsDialog.settings.requireConfirmationOnImuMissing
+            onCheckedChanged: settingsDialog.settings.requireConfirmationOnImuMissing = checked
+            Layout.fillWidth: true
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+
+            Label {
+                text: qsTr("Picture field name:")
+                Layout.alignment: Qt.AlignVCenter
             }
 
-            GroupBox {
-                title: qsTr("Camera Settings")
-                width: parent.width - 40
-                
-                Column {
-                    width: parent.width
-                    spacing: 15
-
-                    CheckBox {
-                        id: autoImageCheckbox
-                        text: qsTr("Auto-capture image")
-                        checked: settings ? settings.autoImage : false
-                        
-                        onCheckedChanged: {
-                            if (settings) {
-                                settings.autoImage = checked;
-                            }
-                        }
-                    }
-
-                    Text {
-                        text: qsTr("When enabled, the camera will automatically capture a photo when creating a point.")
-                        font.pointSize: 10
-                        color: "#666"
-                        wrapMode: Text.Wrap
-                        width: parent.width
-                    }
-
-                    RowLayout {
-                        width: parent.width
-                        enabled: autoImageCheckbox.checked
-
-                        Text {
-                            text: qsTr("Picture field name:")
-                            Layout.preferredWidth: 120
-                        }
-
-                        TextField {
-                            id: pictureFieldTextField
-                            text: settings ? settings.pictureFieldName : ""
-                            placeholderText: qsTr("picture")
-                            Layout.fillWidth: true
-                            
-                            onTextChanged: {
-                                if (settings) {
-                                    settings.pictureFieldName = text;
-                                }
-                            }
-                        }
-                    }
-
-                    Text {
-                        text: qsTr("The name of the field where the image path will be stored.")
-                        font.pointSize: 10
-                        color: "#666"
-                        wrapMode: Text.Wrap
-                        width: parent.width
-                    }
-                }
-            }
-
-            GroupBox {
-                title: qsTr("Audio Settings")
-                width: parent.width - 40
-                
-                Column {
-                    width: parent.width
-                    spacing: 15
-
-                    CheckBox {
-                        id: audioFeedbackCheckbox
-                        text: qsTr("Enable audio feedback")
-                        checked: settings ? settings.enableAudioFeedback : false
-                        
-                        onCheckedChanged: {
-                            if (settings) {
-                                settings.enableAudioFeedback = checked;
-                            }
-                        }
-                    }
-
-                    Text {
-                        text: qsTr("Play a sound when a point is successfully created.")
-                        font.pointSize: 10
-                        color: "#666"
-                        wrapMode: Text.Wrap
-                        width: parent.width
-                    }
-                }
-            }
-
-            GroupBox {
-                title: qsTr("Advanced Settings")
-                width: parent.width - 40
-                
-                Column {
-                    width: parent.width
-                    spacing: 15
-
-                    CheckBox {
-                        id: confirmationCheckbox
-                        text: qsTr("Require confirmation on IMU missing")
-                        checked: settings ? settings.requireConfirmationOnImuMissing : false
-                        
-                        onCheckedChanged: {
-                            if (settings) {
-                                settings.requireConfirmationOnImuMissing = checked;
-                            }
-                        }
-                    }
-
-                    Text {
-                        text: qsTr("Show confirmation dialog when IMU data is not available.")
-                        font.pointSize: 10
-                        color: "#666"
-                        wrapMode: Text.Wrap
-                        width: parent.width
-                    }
-                }
+            TextField {
+                id: pictureFieldInput
+                text: settingsDialog.settings.pictureFieldName
+                onTextChanged: settingsDialog.settings.pictureFieldName = text
+                Layout.fillWidth: true
+                placeholderText: qsTr("Enter field name")
             }
         }
-    }
 
-    onAccepted: {
-        settingsAccepted();
-    }
-    
-    onRejected: {
-        // Reload settings from stored values if user cancels
-        loadSettingsFromStorage();
-    }
-    
-    function loadSettingsFromStorage() {
-        if (settings) {
-            autoImageCheckbox.checked = settings.autoImage;
-            pictureFieldTextField.text = settings.pictureFieldName;
-            audioFeedbackCheckbox.checked = settings.enableAudioFeedback;
-            confirmationCheckbox.checked = settings.requireConfirmationOnImuMissing;
+        Switch {
+            id: audioFeedbackSwitch
+            text: qsTr("Enable audio feedback")
+            checked: settingsDialog.settings.enableAudioFeedback
+            onCheckedChanged: settingsDialog.settings.enableAudioFeedback = checked
+            Layout.fillWidth: true
         }
-    }
-    
-    Component.onCompleted: {
-        loadSettingsFromStorage();
+
+        Item {
+            Layout.fillHeight: true
+        }
     }
 }

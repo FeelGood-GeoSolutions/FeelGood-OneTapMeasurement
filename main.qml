@@ -39,7 +39,6 @@ Item {
 
     Component.onCompleted: {
         iface.addItemToPluginsToolbar(oneTapButton);
-        settingsDialog.parent = mainWindow.contentItem;
         return;
     }
 
@@ -105,10 +104,7 @@ Item {
         }
 
         onPressAndHold: {
-            if (oneTapButton.enabled && !plugin.isCapturing) {
-                settingsDialog.open();
-            }
-            return;
+            settingsDialog.open();
         }
 
         function enable() {
@@ -126,7 +122,8 @@ Item {
         id: settingsDialog
         
         settings: feelgoodOnetapSettings
-        parentWindow: plugin.mainWindow
+        mainWindow: plugin.mainWindow
+        parent: plugin.mainWindow.contentItem
     }
 
     function startCameraCapture() {
@@ -141,6 +138,11 @@ Item {
         if (!plugin.pendingFeatureData) {
             logger.log("Failed to create pending feature data");
             oneTapButton.enable();
+            return;
+        }
+
+        if (!feelgoodOnetapSettings.autoImage) {
+            plugin.createFromPendingFeatureData();
             return;
         }
 
@@ -218,11 +220,6 @@ Item {
             geometry: geometry,
             relativePath: relativePath
         };
-
-        if (!feelgoodOnetapSettings.autoImage) {
-            plugin.createFromPendingFeatureData();
-            return;
-        }
 
         return;
     }
