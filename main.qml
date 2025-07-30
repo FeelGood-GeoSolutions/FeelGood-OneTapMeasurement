@@ -58,12 +58,12 @@ Item {
 
     Components.Camera {
         id: cameraComponent
-        
-        onPhotoCaptured: (filePath) => {
+
+        onPhotoCaptured: filePath => {
             plugin.createFromPendingFeatureData();
         }
-        
-        onCameraError: (errorMessage) => {
+
+        onCameraError: errorMessage => {
             logger.log("Camera error: " + errorMessage);
             oneTapButton.enable();
             plugin.isCapturing = false;
@@ -93,13 +93,28 @@ Item {
             if (!oneTapButton.enabled || plugin.isCapturing) {
                 return;
             }
+
+            if (feelgoodOnetapSettings.requireConfirmationOnImuMissing && !plugin.positionSource.positionInformation.imuCorrection) {
+                imuMissingConfirmationDialog.open();
+                return;
+            }
+
             disable();
+
+            plugin.oneTap();
+
+            if (!plugin.pendingFeatureData) {
+                logger.log("Failed to create pending feature data");
+                oneTapButton.enable();
+                return;
+            }
 
             if (feelgoodOnetapSettings.autoImage) {
                 plugin.startCameraCapture();
                 return;
             }
-            plugin.oneTap();
+
+            plugin.createFromPendingFeatureData();
             return;
         }
 
@@ -120,10 +135,60 @@ Item {
 
     Components.Settings {
         id: settingsDialog
-        
+
         settings: feelgoodOnetapSettings
         mainWindow: plugin.mainWindow
         parent: plugin.mainWindow.contentItem
+    }
+
+    Dialog {
+        id: imuMissingConfirmationDialog
+        parent: plugin.mainWindow.contentItem
+
+        visible: false
+        modal: true
+        width: 400
+        title: qsTr("IMU not active!")
+        standardButtons: Dialog.Ok | Dialog.Cancel
+
+        x: (mainWindow.width - width) / 2
+        y: (mainWindow.height - height) / 2
+
+        ColumnLayout {
+            width: parent.width
+            spacing: 10
+
+            Label {
+                text: qsTr("IMU is not active. Do you want to continue?\n\nHint: You can disable this confirmation in the plugin settings.")
+                Layout.fillWidth: true
+                Layout.preferredWidth: imuMissingConfirmationDialog.width - 40
+                wrapMode: Text.Wrap
+            }
+        }
+
+        onAccepted: {
+            oneTapButton.disable();
+
+            plugin.oneTap();
+
+            if (!plugin.pendingFeatureData) {
+                logger.log("Failed to create pending feature data");
+                oneTapButton.enable();
+                return;
+            }
+
+            if (feelgoodOnetapSettings.autoImage) {
+                plugin.startCameraCapture();
+                return;
+            }
+
+            plugin.createFromPendingFeatureData();
+            return;
+        }
+
+        onRejected: {
+
+        }
     }
 
     function startCameraCapture() {
@@ -132,17 +197,9 @@ Item {
             return;
         }
 
-        // First call oneTap to set up the pending feature data
-        plugin.oneTap();
-        
         if (!plugin.pendingFeatureData) {
             logger.log("Failed to create pending feature data");
             oneTapButton.enable();
-            return;
-        }
-
-        if (!feelgoodOnetapSettings.autoImage) {
-            plugin.createFromPendingFeatureData();
             return;
         }
 
@@ -154,7 +211,7 @@ Item {
     function oneTap() {
         dashBoard.ensureEditableLayerSelected();
         let layer = dashBoard.activeLayer;
-        
+
         if (!positionSource.active || !positionSource.positionInformation.latitudeValid || !positionSource.positionInformation.longitudeValid) {
             mainWindow.displayToast(qsTr('Cannot generate point. Positioning is not active or does not return a valid position.'));
             oneTapButton.enable();
@@ -166,7 +223,7 @@ Item {
             oneTapButton.enable();
             return;
         }
-        
+
         let fieldNames = layer.fields.names;
 
         if (fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName) == -1 && feelgoodOnetapSettings.autoImage) {
@@ -181,7 +238,7 @@ Item {
             oneTapButton.enable();
             return;
         }
-        
+
         let longitude = pos.x;
         let latitude = pos.y;
 

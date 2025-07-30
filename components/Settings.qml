@@ -10,8 +10,7 @@ Dialog {
     visible: false
     modal: true
     width: 400
-    //height: 300
-    title: qsTr("Feelgood OneTap Settings")
+    title: qsTr("FeelGood OneTapMeasurement Plugin Settings")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     x: (mainWindow.width - width) / 2
@@ -21,12 +20,6 @@ Dialog {
         anchors.fill: parent
         anchors.margins: 10
         spacing: 15
-
-        Text {
-            text: qsTr("Configure your Feelgood OneTap settings here.")
-            wrapMode: Text.Wrap
-            Layout.fillWidth: true
-        }
 
         Switch {
             id: autoImageSwitch
@@ -38,7 +31,7 @@ Dialog {
 
         Switch {
             id: imuConfirmationSwitch
-            text: qsTr("Require IMU confirmation")
+            text: qsTr("Require confirmation if IMU is not active")
             checked: settingsDialog.settings.requireConfirmationOnImuMissing
             onCheckedChanged: settingsDialog.settings.requireConfirmationOnImuMissing = checked
             Layout.fillWidth: true
@@ -49,7 +42,7 @@ Dialog {
             spacing: 10
 
             Label {
-                text: qsTr("Picture field name:")
+                text: qsTr("Picture field name")
                 Layout.alignment: Qt.AlignVCenter
             }
 
@@ -58,7 +51,7 @@ Dialog {
                 text: settingsDialog.settings.pictureFieldName
                 onTextChanged: settingsDialog.settings.pictureFieldName = text
                 Layout.fillWidth: true
-                placeholderText: qsTr("Enter field name")
+                placeholderText: qsTr("Enter field name...")
             }
         }
 
@@ -68,10 +61,6 @@ Dialog {
             checked: settingsDialog.settings.enableAudioFeedback
             onCheckedChanged: settingsDialog.settings.enableAudioFeedback = checked
             Layout.fillWidth: true
-        }
-
-        Item {
-            Layout.fillHeight: true
         }
     }
 }
