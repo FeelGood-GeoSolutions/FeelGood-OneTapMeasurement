@@ -108,10 +108,9 @@ Item {
                     attentionSound.playAttention();
                 }
                 imuMissingConfirmationDialog.open();
-                return;
+            } else {
+                plugin.oneTap();
             }
-
-            plugin.oneTap();
         }
 
         onPressAndHold: {
