@@ -81,6 +81,17 @@ Item {
         }
     }
 
+    SoundEffect {
+        id: attentionSound
+        source: "sounds/attention.wav"
+
+        function playAttention() {
+            if (feelgoodOnetapSettings.enableAudioFeedback) {
+                play();
+            }
+        }
+    }
+
     QfToolButton {
         id: oneTapButton
         iconSource: plugin.mainIconSource
@@ -95,26 +106,14 @@ Item {
             }
 
             if (feelgoodOnetapSettings.requireConfirmationOnImuMissing && !plugin.positionSource.positionInformation.imuCorrection) {
+                if (feelgoodOnetapSettings.enableAudioFeedback) {
+                    attentionSound.playAttention();
+                }
                 imuMissingConfirmationDialog.open();
                 return;
             }
 
-            disable();
-
             plugin.oneTap();
-
-            if (!plugin.pendingFeatureData) {
-                logger.log("Failed to create pending feature data");
-                oneTapButton.enable();
-                return;
-            }
-
-            if (feelgoodOnetapSettings.autoImage) {
-                plugin.startCameraCapture();
-                return;
-            }
-
-            plugin.createFromPendingFeatureData();
             return;
         }
 
@@ -168,27 +167,10 @@ Item {
 
         onAccepted: {
             oneTapButton.disable();
-
             plugin.oneTap();
-
-            if (!plugin.pendingFeatureData) {
-                logger.log("Failed to create pending feature data");
-                oneTapButton.enable();
-                return;
-            }
-
-            if (feelgoodOnetapSettings.autoImage) {
-                plugin.startCameraCapture();
-                return;
-            }
-
-            plugin.createFromPendingFeatureData();
-            return;
         }
 
-        onRejected: {
-
-        }
+        onRejected: {}
     }
 
     function startCameraCapture() {
@@ -209,6 +191,25 @@ Item {
     }
 
     function oneTap() {
+        oneTapButton.disable();
+        plugin.createPendingFeatureData();
+
+        if (!plugin.pendingFeatureData) {
+            logger.log("Failed to create pending feature data");
+            oneTapButton.enable();
+            return;
+        }
+
+        if (feelgoodOnetapSettings.autoImage) {
+            plugin.startCameraCapture();
+            return;
+        }
+
+        plugin.createFromPendingFeatureData();
+        return;
+    }
+
+    function createPendingFeatureData() {
         dashBoard.ensureEditableLayerSelected();
         let layer = dashBoard.activeLayer;
 
@@ -306,7 +307,9 @@ Item {
             plugin.isCapturing = false;
             oneTapButton.enable();
 
-            successSound.playSuccess();
+            if (feelgoodOnetapSettings.enableAudioFeedback) {
+                successSound.playSuccess();
+            }
         }
     }
 }
