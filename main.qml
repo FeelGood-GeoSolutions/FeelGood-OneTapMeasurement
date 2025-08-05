@@ -4,7 +4,6 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 import QtMultimedia
-import QtCore
 
 import org.qfield
 import org.qgis
@@ -39,7 +38,6 @@ Item {
 
     Component.onCompleted: {
         iface.addItemToPluginsToolbar(oneTapButton);
-        return;
     }
 
     Component.onDestruction: {
@@ -114,7 +112,6 @@ Item {
             }
 
             plugin.oneTap();
-            return;
         }
 
         onPressAndHold: {
@@ -150,8 +147,8 @@ Item {
         title: qsTr("IMU not active!")
         standardButtons: Dialog.Ok | Dialog.Cancel
 
-        x: (mainWindow.width - width) / 2
-        y: (mainWindow.height - height) / 2
+        x: (plugin.mainWindow.width - width) / 2
+        y: (plugin.mainWindow.height - height) / 2
 
         ColumnLayout {
             width: parent.width
@@ -202,11 +199,9 @@ Item {
 
         if (feelgoodOnetapSettings.autoImage) {
             plugin.startCameraCapture();
-            return;
+        } else {
+            plugin.createFromPendingFeatureData();
         }
-
-        plugin.createFromPendingFeatureData();
-        return;
     }
 
     function createPendingFeatureData() {
@@ -228,7 +223,7 @@ Item {
         let fieldNames = layer.fields.names;
 
         if (fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName) == -1 && feelgoodOnetapSettings.autoImage) {
-            mainWindow.displayToast(qsTr('Cannot generate point. Active vector layer is missing a field named ${feelgoodOnetapSettings.pictureFieldName}. Please create it in the layer settings or adjust your plugin settings.'));
+            mainWindow.displayToast(qsTr('Cannot generate point. Active vector layer is missing a field named "%1". Please create it in the layer settings or adjust your plugin settings.').arg(feelgoodOnetapSettings.pictureFieldName));
             oneTapButton.enable();
             return;
         }
@@ -278,8 +273,6 @@ Item {
             geometry: geometry,
             relativePath: relativePath
         };
-
-        return;
     }
 
     function createFromPendingFeatureData() {
