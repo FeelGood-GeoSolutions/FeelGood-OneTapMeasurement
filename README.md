@@ -55,4 +55,5 @@ This plugin is licensed under the **GNU General Public License v2.0 (GPLv2)**.
 
 ### Icons
 This plugin uses icons from [Google Material Symbols](https://fonts.google.com/icons), which are licensed under the **Apache License 2.0**. You must comply with the terms of both GPLv2 and Apache 2.0 when redistributing this plugin.
+
 ---
