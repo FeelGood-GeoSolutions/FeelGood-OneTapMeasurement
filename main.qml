@@ -104,9 +104,7 @@ Item {
             }
 
             if (feelgoodOnetapSettings.requireConfirmationOnImuMissing && !plugin.positionSource.positionInformation.imuCorrection) {
-                if (feelgoodOnetapSettings.enableAudioFeedback) {
-                    attentionSound.playAttention();
-                }
+                attentionSound.playAttention();
                 imuMissingConfirmationDialog.open();
             } else {
                 plugin.oneTap();
@@ -162,7 +160,6 @@ Item {
         }
 
         onAccepted: {
-            oneTapButton.disable();
             plugin.oneTap();
         }
 
@@ -172,6 +169,7 @@ Item {
     function startCameraCapture() {
         if (plugin.isCapturing) {
             logger.log("Camera capture already in progress");
+            oneTapButton.enable();
             return;
         }
 
@@ -299,9 +297,7 @@ Item {
             plugin.isCapturing = false;
             oneTapButton.enable();
 
-            if (feelgoodOnetapSettings.enableAudioFeedback) {
-                successSound.playSuccess();
-            }
+            successSound.playSuccess();
         }
     }
 }

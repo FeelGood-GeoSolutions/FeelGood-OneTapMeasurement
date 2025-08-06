@@ -5,7 +5,7 @@ QtObject {
 
     function log(msg) {
         if (iface && iface.logMessage) {
-            iface.logMessage("[FeelgoodOneTap] " + msg);
+            iface.logMessage("[Feelgood OneTapMeasurement] " + msg);
         }
     }
 }
