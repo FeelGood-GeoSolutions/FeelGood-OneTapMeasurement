@@ -195,6 +195,7 @@ Item {
         }
 
         if (feelgoodOnetapSettings.autoImage) {
+            platformUtilities.createDir(qgisProject.homePath, 'DCIM');
             plugin.startCameraCapture();
         } else {
             plugin.createFromPendingFeatureData();
