@@ -33,7 +33,7 @@ If you encounter any bugs 🪲 or have suggestions for improvements, please open
 
 ## About Us
 
-<img src="https://nx42125.your-storageshare.de/apps/files_sharing/publicpreview/ToJDbZ9oQt5mHcm?file=/&fileId=188926&x=1920&y=1080&a=true&etag=0e07f593bbe04eea28ee1d4516c0a4c0" alt="FeelGood GeoSolutions GmbH">
+<img src="https://nx42125.your-storageshare.de/apps/files_sharing/publicpreview/ToJDbZ9oQt5mHcm?file=/&fileId=188926&x=1920&y=1080&a=true" alt="FeelGood GeoSolutions GmbH">
 
 Our goal is to create sustainable and resilient living environments through the use and integration of geodata, where efficiency and job satisfaction go hand in hand with protecting our environment. Learn more about us on our [website](https://www.feelgoodgeosolutions.de/%C3%BCber-uns).
 
