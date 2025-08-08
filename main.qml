@@ -99,6 +99,7 @@ Item {
         enabled: true
 
         onClicked: {
+            logger.log("1")
             if (!oneTapButton.enabled || plugin.isCapturing) {
                 return;
             }
@@ -106,7 +107,9 @@ Item {
             if (feelgoodOnetapSettings.requireConfirmationOnImuMissing && !plugin.positionSource.positionInformation.imuCorrection) {
                 attentionSound.playAttention();
                 imuMissingConfirmationDialog.open();
+                logger.log("2")
             } else {
+                logger.log("3")
                 plugin.oneTap();
             }
         }
@@ -178,14 +181,16 @@ Item {
             oneTapButton.enable();
             return;
         }
-
+        logger.log("9")
         let fullPath = qgisProject.homePath + "/" + plugin.pendingFeatureData.relativePath;
         cameraComponent.startCapture(fullPath);
         plugin.isCapturing = true;
+        logger.log("10")
     }
 
     function oneTap() {
         oneTapButton.disable();
+        logger.log("4")
         plugin.createPendingFeatureData();
 
         if (!plugin.pendingFeatureData) {
@@ -193,11 +198,15 @@ Item {
             oneTapButton.enable();
             return;
         }
+        logger.log("5")
 
         if (feelgoodOnetapSettings.autoImage) {
+            logger.log("6")
             platformUtilities.createDir(qgisProject.homePath, 'DCIM');
+            logger.log("7")
             plugin.startCameraCapture();
         } else {
+            logger.log("8")
             plugin.createFromPendingFeatureData();
         }
     }
