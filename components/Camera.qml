@@ -17,12 +17,9 @@ Item {
     signal cameraError(string errorMessage)
     
     function startCapture(filePath) {
-        logger.log("11")
         if (cameraLoader.item) {
-            logger.log("12")
             cameraLoader.item.startCapture(filePath);
         } else {
-            logger.log("12b")
             cameraLoader.active = true;
             Qt.callLater(() => {
                 if (cameraLoader.item) {
@@ -122,7 +119,6 @@ Item {
                     let maxRetries = 5;
                     let retryCount = 0;
                     let retryDelay = 200; // ms
-                    logger.log("13")
                     function tryCapture() {
                         if (retryCount >= maxRetries) {
                             handleCameraError("Failed to capture after " + maxRetries + " attempts");
@@ -148,7 +144,6 @@ Item {
                             handleCameraError("Error capturing photo: " + error);
                         }
                     }
-                    logger.log("14")
                     tryCapture();
                 }
 

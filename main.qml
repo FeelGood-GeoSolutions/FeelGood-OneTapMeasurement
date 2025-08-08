@@ -54,6 +54,10 @@ Item {
         id: logger
     }
 
+    QfCameraPermission {
+        id: cameraPermission
+    }
+
     Components.Camera {
         id: cameraComponent
 
@@ -99,7 +103,6 @@ Item {
         enabled: true
 
         onClicked: {
-            logger.log("1")
             if (!oneTapButton.enabled || plugin.isCapturing) {
                 return;
             }
@@ -107,9 +110,7 @@ Item {
             if (feelgoodOnetapSettings.requireConfirmationOnImuMissing && !plugin.positionSource.positionInformation.imuCorrection) {
                 attentionSound.playAttention();
                 imuMissingConfirmationDialog.open();
-                logger.log("2")
             } else {
-                logger.log("3")
                 plugin.oneTap();
             }
         }
@@ -170,6 +171,16 @@ Item {
     }
 
     function startCameraCapture() {
+        if (cameraPermission.status === Qt.PermissionStatus.Undetermined) {
+            cameraPermission.request();
+        }
+
+        if (cameraPermission.status !== Qt.PermissionStatus.Granted) {
+            logger.log("Camera permission not granted");
+            oneTapButton.enable();
+            return;
+        }
+
         if (plugin.isCapturing) {
             logger.log("Camera capture already in progress");
             oneTapButton.enable();
@@ -181,16 +192,13 @@ Item {
             oneTapButton.enable();
             return;
         }
-        logger.log("9")
         let fullPath = qgisProject.homePath + "/" + plugin.pendingFeatureData.relativePath;
         cameraComponent.startCapture(fullPath);
         plugin.isCapturing = true;
-        logger.log("10")
     }
 
     function oneTap() {
         oneTapButton.disable();
-        logger.log("4")
         plugin.createPendingFeatureData();
 
         if (!plugin.pendingFeatureData) {
@@ -198,15 +206,11 @@ Item {
             oneTapButton.enable();
             return;
         }
-        logger.log("5")
 
         if (feelgoodOnetapSettings.autoImage) {
-            logger.log("6")
             platformUtilities.createDir(qgisProject.homePath, 'DCIM');
-            logger.log("7")
             plugin.startCameraCapture();
         } else {
-            logger.log("8")
             plugin.createFromPendingFeatureData();
         }
     }
@@ -288,6 +292,8 @@ Item {
 
             let fieldNames = feature.fields.names;
             if (fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName) > -1 && feelgoodOnetapSettings.autoImage) {
+                logger.log("Setting picture field: " + feelgoodOnetapSettings.pictureFieldName);
+                logger.log("Relative path: " + plugin.pendingFeatureData.relativePath);
                 let fieldIndex = fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName);
                 feature.setAttribute(fieldIndex, plugin.pendingFeatureData.relativePath);
             } else if (feelgoodOnetapSettings.autoImage) {
