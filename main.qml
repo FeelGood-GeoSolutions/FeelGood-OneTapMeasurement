@@ -56,6 +56,10 @@ Item {
 
     QfCameraPermission {
         id: cameraPermission
+
+        onStatusChanged: {
+            oneTapButton.start();
+        }
     }
 
     Components.Camera {
@@ -103,16 +107,7 @@ Item {
         enabled: true
 
         onClicked: {
-            if (!oneTapButton.enabled || plugin.isCapturing) {
-                return;
-            }
-
-            if (feelgoodOnetapSettings.requireConfirmationOnImuMissing && !plugin.positionSource.positionInformation.imuCorrection) {
-                attentionSound.playAttention();
-                imuMissingConfirmationDialog.open();
-            } else {
-                plugin.oneTap();
-            }
+            start();
         }
 
         onPressAndHold: {
@@ -127,6 +122,24 @@ Item {
         function disable() {
             oneTapButton.iconSource = plugin.pendingIconSource;
             oneTapButton.enabled = false;
+        }
+
+        function start() {
+            if (!oneTapButton.enabled || plugin.isCapturing) {
+                return;
+            }
+
+            if (feelgoodOnetapSettings.autoImage && cameraPermission.status === Qt.PermissionStatus.Undetermined) {
+                cameraPermission.request();
+                return;
+            }
+
+            if (feelgoodOnetapSettings.requireConfirmationOnImuMissing && !plugin.positionSource.positionInformation.imuCorrection) {
+                attentionSound.playAttention();
+                imuMissingConfirmationDialog.open();
+            } else {
+                plugin.oneTap();
+            }
         }
     }
 
@@ -171,27 +184,26 @@ Item {
     }
 
     function startCameraCapture() {
-        if (cameraPermission.status === Qt.PermissionStatus.Undetermined) {
-            cameraPermission.request();
-        }
-
         if (cameraPermission.status !== Qt.PermissionStatus.Granted) {
-            logger.log("Camera permission not granted");
+            let txt = "Camera permission not granted. Please disable automatic capture or adjust your app permissions!";
+            logger.log(txt);
+            mainWindow.displayToast(txt);
             oneTapButton.enable();
             return;
         }
 
         if (plugin.isCapturing) {
-            logger.log("Camera capture already in progress");
+            logger.log("Camera capture already in progress. Please wait until the current capture is finished.");
             oneTapButton.enable();
             return;
         }
 
         if (!plugin.pendingFeatureData) {
-            logger.log("Failed to create pending feature data");
+            logger.log("Failed to create feature data. Please try again.");
             oneTapButton.enable();
             return;
         }
+
         let fullPath = qgisProject.homePath + "/" + plugin.pendingFeatureData.relativePath;
         cameraComponent.startCapture(fullPath);
         plugin.isCapturing = true;
