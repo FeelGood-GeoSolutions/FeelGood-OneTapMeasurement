@@ -309,8 +309,6 @@ Item {
 
             let fieldNames = feature.fields.names;
             if (fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName) > -1 && feelgoodOnetapSettings.autoImage) {
-                logger.log("Setting picture field: " + feelgoodOnetapSettings.pictureFieldName);
-                logger.log("Relative path: " + plugin.pendingFeatureData.relativePath);
                 let fieldIndex = fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName);
                 feature.setAttribute(fieldIndex, plugin.pendingFeatureData.relativePath);
             } else if (feelgoodOnetapSettings.autoImage) {
