@@ -302,6 +302,11 @@ Item {
         if (plugin.pendingFeatureData) {
             let feature = FeatureUtils.createBlankFeature(plugin.pendingFeatureData.layer.fields, plugin.pendingFeatureData.geometry);
 
+            overlayFeatureFormDrawer.featureModel.feature = feature;
+            overlayFeatureFormDrawer.featureModel.resetAttributes(true);
+            overlayFeatureFormDrawer.state = 'Add';
+            overlayFeatureFormDrawer.open();
+
             let fieldNames = feature.fields.names;
             if (fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName) > -1 && feelgoodOnetapSettings.autoImage) {
                 logger.log("Setting picture field: " + feelgoodOnetapSettings.pictureFieldName);
@@ -312,10 +317,6 @@ Item {
                 logger.log("Picture field not found in feature fields");
             }
 
-            overlayFeatureFormDrawer.featureModel.feature = feature;
-            overlayFeatureFormDrawer.featureModel.resetAttributes(true);
-            overlayFeatureFormDrawer.state = 'Add';
-            overlayFeatureFormDrawer.open();
             overlayFeatureFormDrawer.close();
 
             plugin.pendingFeatureData = null;
