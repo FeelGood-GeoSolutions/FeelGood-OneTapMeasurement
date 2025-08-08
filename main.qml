@@ -302,24 +302,35 @@ Item {
         if (plugin.pendingFeatureData) {
             let feature = FeatureUtils.createBlankFeature(plugin.pendingFeatureData.layer.fields, plugin.pendingFeatureData.geometry);
 
+            overlayFeatureFormDrawer.featureModel.currentLayer = plugin.pendingFeatureData.layer;
             overlayFeatureFormDrawer.featureModel.feature = feature;
             overlayFeatureFormDrawer.featureModel.resetAttributes(true);
             overlayFeatureFormDrawer.state = 'Add';
-            overlayFeatureFormDrawer.open();
 
-            let fieldNames = feature.fields.names;
-            if (fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName) > -1 && feelgoodOnetapSettings.autoImage) {
+            if (feelgoodOnetapSettings.autoImage) {
+                let fieldNames = feature.fields.names;
                 let fieldIndex = fieldNames.indexOf(feelgoodOnetapSettings.pictureFieldName);
-                feature.setAttribute(fieldIndex, plugin.pendingFeatureData.relativePath);
-            } else if (feelgoodOnetapSettings.autoImage) {
-                logger.log("Picture field not found in feature fields");
+
+                if (fieldIndex > -1) {
+                    let success = overlayFeatureFormDrawer.featureModel.setData(overlayFeatureFormDrawer.featureModel.index(fieldIndex, 0), plugin.pendingFeatureData.relativePath, FeatureModel.AttributeValue);
+                    if (!success) {
+                        logger.log("Failed to set picture field");
+                    }
+                } else {
+                    logger.log("Picture field not found in feature fields");
+                }
             }
 
-            overlayFeatureFormDrawer.close();
+            let success = overlayFeatureFormDrawer.featureModel.create();
+
+            if (success) {
+                mainWindow.displayToast(qsTr('Feature created'));
+            } else {
+                logger.log("Failed to create feature");
+                mainWindow.displayToast(qsTr('Failed to create feature'));
+            }
 
             plugin.pendingFeatureData = null;
-
-            // Clean up camera after successful capture
             cameraComponent.cleanup();
             plugin.isCapturing = false;
             oneTapButton.enable();
